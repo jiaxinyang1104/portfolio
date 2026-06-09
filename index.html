@@ -464,6 +464,39 @@
             filter: blur(0);
             cursor: default;
         }
+        /* ================= 响应式适配 ================= */
+        @media (max-width: 1280px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            #app-container {
+                transform-origin: top center;
+            }
+        }
+        @media (max-width: 1000px) {
+            body { padding: 10px; }
+            #app-container {
+                transform: scale(0.75);
+                transform-origin: top center;
+            }
+        }
+        @media (max-width: 768px) {
+            body { padding: 5px; }
+            #app-container {
+                transform: scale(0.55);
+                transform-origin: top center;
+            }
+        }
+        @media (max-width: 480px) {
+            body { padding: 2px; }
+            #app-container {
+                transform: scale(0.38);
+                transform-origin: top center;
+            }
+        }
     </style>
 </head>
 <body>
