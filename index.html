@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JiaXin Yang - Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* ================= 基础重置 ================= */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0;
+            color: #2c2c2c;
+        }
+        .handwriting { font-family: 'Inter', sans-serif; font-weight: 500; }
+        .serif-title { font-family: 'Caveat', cursive; font-weight: 600; }
+
+        /* ================= 整体容器 ================= */
+        #app-container {
+            position: relative;
+            width: 1200px;
+            height: 780px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+        }
+
+        /* ================= 左侧侧边栏 ================= */
+        .sidebar {
+            position: absolute;
+            left: 0; top: 50%; transform: translateY(-50%) scale(1);
+            width: 200px; font-family: 'Inter', sans-serif;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            padding: 0 10px;
+        }
+        .sidebar.visible { opacity: 1; pointer-events: auto; transform: translateY(-50%) scale(1); }
+        .sidebar.hidden-sidebar { 
+            opacity: 0 !important; 
+            pointer-events: none !important; 
+            transform: translateY(-50%) scale(0.9) !important;
+        }
+        .sidebar img.avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffe8f0; margin-bottom: 15px; }
+        .sidebar h2 { font-size: 20px; font-weight: 600; margin-bottom: 5px; color: #1a1a1a; }
+        .sidebar p { font-size: 12px; color: #8a8a8a; line-height: 1.5; margin-bottom: 20px; }
+        .sidebar .sidebar-link { font-size: 12px; color: #8a8a8a; text-decoration: none; display: block; margin-bottom: 20px; cursor: pointer; }
+        .sidebar .sidebar-link:hover { color: #2c2c2c; }
+        .sidebar .social-icons i { font-size: 18px; color: #b8a8b8; margin-right: 12px; cursor: pointer; transition: color 0.2s; }
+        .sidebar .social-icons i:hover { color: #2c2c2c; }
+
+        /* ================= 幻灯片区域 ================= */
+        .slides-wrapper {
+            position: relative;
+            width: 960px;
+            height: 680px;
+            margin-left: 200px;
+            transition: transform 0.45s ease, width 0.45s ease, margin-left 0.45s ease;
+            transform-origin: center center;
+        }
+        .slides-wrapper.zoom-in {
+            transform: scale(1.06);
+        }
+
+        .slide {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+        }
+        .slide.active { opacity: 1; pointer-events: auto; z-index: 10; }
+
+        /* ================= 纸张样式 ================= */
+        .page {
+            width: 480px; height: 680px;
+            background-color: #fff5f8;
+            position: relative; padding: 40px;
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.06),
+                0 8px 16px rgba(0,0,0,0.08),
+                0 20px 40px rgba(0,0,0,0.05),
+                0 40px 80px rgba(0,0,0,0.03);
+            border: 1px solid rgba(255, 200, 220, 0.3);
+            display: flex; flex-direction: column;
+        }
+        .page.left-page { border-right: 1px solid #ffe8f0; border-radius: 5px 0 0 5px; }
+        .page.right-page { border-left: none; border-radius: 0 5px 5px 0; }
+        
+        .page.cover-page {
+            box-shadow: 
+                0 2px 4px rgba(0,0,0,0.06),
+                0 12px 24px rgba(0,0,0,0.1),
+                0 30px 60px rgba(0,0,0,0.08),
+                0 60px 120px rgba(0,0,0,0.05);
+            border-radius: 5px 8px 8px 5px;
+            justify-content: center; align-items: center; text-align: center;
+            background-color: #fff0f3;
+            border-left: 4px solid #fddce0;
+        }
+
+        /* ================= 书签 (Tabs) ================= */
+        .tab {
+            position: absolute; width: 30px; height: 45px;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; 
+            color: #2c2c2c;
+            z-index: 5;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .tab:hover { filter: brightness(0.95); }
+        .left-page .tab { left: -30px; border-radius: 5px 0 0 5px; box-shadow: -2px 2px 5px rgba(0,0,0,0.03); }
+        .right-page .tab, .cover-page .tab { right: -30px; border-radius: 0 5px 5px 0; box-shadow: 2px 2px 5px rgba(0,0,0,0.03); }
+        .tab.t0 { top: 40px; background-color: #fff0f5; }
+        .tab.t1 { top: 100px; background-color: #ffe8f0; }
+        .tab.t2 { top: 160px; background-color: #ffd8e8; }
+
+        /* ================= 内页排版 ================= */
+
+        .content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
+        
+        .title { font-size: 28px; font-weight: 600; color: #1a1a1a; margin-bottom: 15px; line-height: 1.2;}
+        .tags { font-family: 'Inter', sans-serif; font-size: 10px; color: #9a9a9a; letter-spacing: 1px; margin-bottom: 30px; font-weight: 600; }
+        .text { font-family: 'Inter', sans-serif; font-size: 13px; color: #4a4a4a; line-height: 1.8; }
+        
+        .media-box { flex-grow: 1; border: 1px dashed #ffd8e8; border-radius: 6px; background: #ffffff; display: flex; justify-content: center; align-items: center; color: #a8a8a8; font-family: 'Inter', sans-serif; width: 100%; height: 100%; overflow: hidden;}
+        .media-box iframe, .media-box img { width: 100%; height: 100%; border: none; display: block; object-fit: cover; }
+
+        /* ================= 项目目录页 ================= */
+        .project-list { list-style: none; padding: 0; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; }
+        .project-list li { 
+            padding: 18px 0; 
+            border-bottom: 1px solid #ffe8f0; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s, padding-left 0.2s;
+            border-radius: 4px;
+            padding-left: 5px;
+        }
+        .project-list li:hover { background-color: #fff0f5; padding-left: 15px; }
+        .project-list li:last-child { border-bottom: none; }
+        .project-num { 
+            font-family: 'Inter', sans-serif; 
+            font-size: 24px; 
+            font-weight: 700; 
+            color: #ffd8e8; 
+            min-width: 45px; 
+            line-height: 1;
+        }
+        .project-info { flex-grow: 1; }
+        .project-info .p-title { font-weight: 600; font-size: 16px; color: #2c2c2c; margin-bottom: 3px; }
+        .project-info .p-sub { font-family: 'Inter', sans-serif; font-size: 11px; color: #9a9a9a; }
+        .project-arrow { color: #ffd0e0; font-size: 20px; }
+
+        /* ================= 简介页 ================= */
+        .about-intro { font-size: 15px; color: #4a4a4a; line-height: 1.9; font-family: 'Inter', sans-serif; flex-grow: 1; }
+        .about-intro i { color: #ffd0e0; margin-right: 8px; width: 20px; }
+        .divider { height: 1px; background-color: #ffe8f0; margin: 20px 0; }
+        .skill-tag { 
+            display: inline-block; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 11px; 
+            padding: 5px 14px; 
+            background-color: #fff0f5; 
+            color: #4a4a4a; 
+            border-radius: 20px; 
+            margin: 4px 6px 4px 0;
+            border: 1px solid #ffd8e8;
+        }
+
+        .about-avatar-placeholder {
+            width: 100px; height: 100px; border-radius: 50%;
+            background-color: #fff0f5;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 40px; color: #ffd8e8;
+            margin-bottom: 15px;
+            border: 2px solid #ffe8f0;
+        }
+
+        /* ================= 联系页 ================= */
+        .contact-item {
+            display: flex; align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #ffe8f0;
+            gap: 15px;
+        }
+        .contact-item:last-child { border-bottom: none; }
+        .contact-icon {
+            width: 42px; height: 42px;
+            background-color: #fff0f5;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #ffd0e0;
+            font-size: 18px;
+            border: 1px solid #ffe8f0;
+        }
+        .contact-detail { flex-grow: 1; }
+        .contact-detail .c-label { font-family: 'Inter', sans-serif; font-size: 10px; color: #9a9a9a; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+        .contact-detail .c-value { font-size: 16px; color: #2c2c2c; font-weight: 500; }
+
+        /* ================= 底部控制区 ================= */
+        .bottom-controls {
+            position: absolute;
+            bottom: 15px;
+            left: 200px;
+            width: 960px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ================= 底部社交栏 ================= */
+        .footer-social {
+            position: absolute;
+            bottom: 90px;
+            left: 0;
+            width: 200px;
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .footer-social.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .footer-social .social-icons {
+            margin-bottom: 8px;
+        }
+        .footer-social .social-icons i {
+            font-size: 16px;
+            color: #b8a8b8;
+            margin: 0 6px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .footer-social .social-icons i:hover { color: #2c2c2c; }
+        .footer-social .copyright {
+            font-family: 'Inter', sans-serif;
+            font-size: 10px;
+            color: #c8c8c8;
+        }
+
+        /* ================= 底部导航箭头 ================= */
+        .arrow-btn {
+            background: none; border: none;
+            font-size: 36px; color: #ffd0e0; cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+            opacity: 0; pointer-events: none;
+            line-height: 1;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+        .arrow-btn.visible { opacity: 1; pointer-events: auto; }
+        .arrow-btn:hover { color: #2c2c2c; }
+        .arrow-btn.prev:hover { transform: translateX(-3px); }
+        .arrow-btn.next:hover { transform: translateX(3px); }
+
+        /* ================= 底部导航按钮 ================= */
+        .bottom-nav {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        .bottom-nav.visible { opacity: 1; pointer-events: auto; }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            background-color: #fff0f5;
+            border: 1px solid #ffe8f0;
+            border-radius: 0;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            color: #4a4a4a;
+            transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+            user-select: none;
+            position: relative;
+        }
+        .nav-btn:hover { background-color: #ffe8f0; color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .nav-btn.active-nav-btn { background-color: #ffd8e8; color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+        .nav-btn svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        /* ================= 项目下拉菜单 ================= */
+        .project-dropdown {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: #fff5f8;
+            border: 1px solid #ffe8f0;
+            border-radius: 0;
+            padding: 12px 16px 16px;
+            display: flex;
+            gap: 16px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+            z-index: 100;
+        }
+        .project-dropdown::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid #ffe8f0;
+        }
+        .project-dropdown.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+        .project-dropdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-radius: 0;
+            min-width: 70px;
+        }
+        .project-dropdown-item:hover { background-color: #fff0f5; }
+        .project-dropdown-num {
+            font-family: 'Inter', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffd8e8;
+        }
+        .project-dropdown-name {
+            font-family: 'Inter', sans-serif;
+            font-size: 11px;
+            color: #4a4a4a;
+            white-space: nowrap;
+        }
+
+        /* ================= 室内设计书签 ================= */
+        .interior-bookmark {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 0 8px 8px 0;
+            transition: left 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+            padding: 0 10px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.06);
+        }
+        .interior-bookmark .bm-num {
+            font-size: 18px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .interior-bookmark .bm-name {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease 0.15s;
+        }
+        .interior-bookmark.active .bm-name {
+            opacity: 1;
+        }
+        /* bm1 浅粉紫 */
+        .interior-bookmark.bm1 { top: 50px; height: 55px; left: -20px; width: 44px; background: #f7e9f4; color: #7a4a6a; }
+        .interior-bookmark.bm1.active { left: -65px; width: 145px; background: #fcf5fa; color: #7a4a6a; box-shadow: 3px 3px 12px rgba(0,0,0,0.1); }
+        /* bm2 玫瑰粉 */
+        .interior-bookmark.bm2 { top: 118px; height: 55px; left: -20px; width: 44px; background: #f7dbeb; color: #8a3a62; }
+        .interior-bookmark.bm2.active { left: -65px; width: 145px; background: #fceef6; color: #8a3a62; box-shadow: 3px 3px 12px rgba(0,0,0,0.1); }
+        /* bm3 浅灰 */
+        .interior-bookmark.bm3 { top: 186px; height: 55px; left: -20px; width: 44px; background: #dfdfe2; color: #4a4a52; }
+        .interior-bookmark.bm3.active { left: -65px; width: 145px; background: #eaeaec; color: #4a4a52; box-shadow: 3px 3px 12px rgba(0,0,0,0.1); }
+        .page-indicator {
+            position: absolute; bottom: 20px; right: 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px; color: #ffd0e0;
+            z-index: 3;
+            font-weight: 500;
+        }
+        .cover-page .page-indicator { display: none; }
+        /* 画廊左右翻页提示 */
+        .nav-hint {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            font-size: 36px; color: rgba(255,255,255,0.7);
+            opacity: 0; transition: opacity 0.25s ease;
+            pointer-events: none; z-index: 2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        #gallery-image { cursor: pointer; }
+        #gallery-image:hover .nav-hint { opacity: 1; }
+        #gallery-image .nav-hint.left { left: 20px; }
+        #gallery-image .nav-hint.right { right: 20px; }
+        /* AI绘本标签 */
+        .aibook-tab {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+            border-radius: 6px; cursor: pointer;
+            transition: background 0.2s, color 0.2s, transform 0.15s;
+            background: #ece8f0; color: #8a7a8a;
+            flex-shrink: 0;
+        }
+        .aibook-tab:hover { background: #e0d8e8; color: #5a4a6a; transform: translateY(-2px); }
+        .aibook-tab.active { background: #6b5a7a; color: #fff; font-weight: 600; }
+        #aibook-image { cursor: pointer; }
+        #aibook-image:hover .nav-hint { opacity: 1; }
+        #aibook-image .nav-hint.left { left: 24px; }
+        #aibook-image .nav-hint.right { right: 24px; }
+        /* 平面设计画廊 */
+        #graphic-image { cursor: pointer; }
+        #graphic-image:hover .nav-hint { opacity: 1; }
+        #graphic-image .nav-hint.left { left: 24px; }
+        #graphic-image .nav-hint.right { right: 24px; }
+        .graphic-tab {
+            padding: 6px 14px;
+            font-family:'Inter',sans-serif; font-size:11px; font-weight:500;
+            border-radius:6px; cursor:pointer;
+            transition: background 0.2s, color 0.2s;
+            background:#ece8f0; color:#8a7a8a;
+            white-space:nowrap; flex-shrink:0;
+        }
+        .graphic-tab:hover { background:#e0d8e8; color:#5a4a6a; }
+        .graphic-tab.active { background:#6b5a7a; color:#fff; font-weight:600; }
+        /* 简历手机号模糊 */
+        .phone-blurred {
+            filter: blur(5px);
+            cursor: pointer;
+            transition: filter 0.3s ease;
+            user-select: none;
+        }
+        .phone-blurred:hover {
+            filter: blur(3px);
+        }
+        .phone-blurred.revealed {
+            filter: blur(0);
+            cursor: default;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+
+    <!-- ============ 侧边栏 ============ -->
+    <div class="sidebar" id="sidebar">
+        <div class="about-avatar-placeholder" style="margin:40px auto 15px; overflow:hidden;">
+            <img src="头像.jpg" alt="杨佳鑫" style="width:100%; height:100%; object-fit:cover; object-position: center 10%; border-radius:50%;">
+        </div>
+        <h2 style="text-align:center; font-size:22px; margin-bottom:3px;">杨佳鑫</h2>
+        <p style="text-align:center; font-size:12px; color:#8a8a8a; margin-bottom:3px;">室内设计</p>
+        <p style="text-align:center; font-size:12px; color:#8a8a8a; margin-bottom:20px;">艺术与科技</p>
+
+        <a href="resume.jpg" download id="resume-download" style="display:block; text-align:center; font-family:'Inter', sans-serif; font-size:12px; color:#8a8a8a; text-decoration:none; margin-bottom:25px; transition:color 0.2s;">
+            Download Resume <i class="fa-solid fa-download" style="font-size:10px; margin-left:3px;"></i>
+        </a>
+    </div>
+
+    <!-- ============ 底部社交栏 ============ -->
+    <div class="footer-social" id="footer-social">
+        <div class="social-icons">
+            <i class="fa-brands fa-instagram"></i>
+            <i class="fa-brands fa-youtube"></i>
+            <i class="fa-brands fa-linkedin-in"></i>
+            <i class="fa-brands fa-steam"></i>
+            <i class="fa-solid fa-gamepad"></i>
+        </div>
+        <p class="copyright">© 2025 杨佳鑫. All rights reserved.</p>
+    </div>
+
+    <div class="slides-wrapper" id="slides-wrapper">
+
+        <!-- ============ SLIDE 0: 封面 ============ -->
+        <div class="slide active" id="slide-0">
+            <div class="page cover-page">
+                <h1 class="serif-title" style="font-size: 64px; line-height: 1.15; margin-bottom: 40px; color: #1a1a1a; font-weight: 600;">
+                    THIS IS<br>HER<br>PORTFOLIO
+                </h1>
+                <p style="font-family:'Inter', sans-serif; font-size: 22px; color: #4a4a4a; margin-bottom: 5px; font-weight: 300; letter-spacing: 2px;">杨佳鑫</p>
+                <p style="font-family:'Inter', sans-serif; font-size:11px; color:#9a9a9a; letter-spacing:3px; font-weight: 300;">DESIGNER / CREATOR</p>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 1: 简介 ============ -->
+        <div class="slide" id="slide-1">
+            <div class="page left-page">
+                <div class="content">
+                    <h2 class="title" style="margin-bottom:5px;">关于我</h2>
+                    <p style="font-family:'Inter', sans-serif; font-size:10px; color:#9a9a9a; letter-spacing:2px; margin-bottom:20px; font-weight: 500;">ABOUT ME</p>
+
+                    <div class="about-intro" style="font-size:13px;">
+                        <p style="font-weight:600; margin-bottom:8px; color:#3e2a18;">🎓 教育背景</p>
+                        <p><span style="color:#c8b8a8; margin-right:8px;">▸</span> <strong>北京师范大学珠海校区</strong> · 未来设计学院</p>
+                        <p style="padding-left:20px; font-size:12px; color:#8a8a8a;">设计学 · 硕士 · 2025.09 - 2028.06</p>
+                        <br>
+                        <p><span style="color:#c8b8a8; margin-right:8px;">▸</span> <strong>鲁迅美术学院</strong> · 建筑艺术设计学院</p>
+                        <p style="padding-left:20px; font-size:12px; color:#8a8a8a;">室内设计 · 本科 · 2021.09 - 2025.06</p>
+                    </div>
+
+                    <div class="divider" style="margin:15px 0;"></div>
+
+                    <div class="about-intro" style="font-size:13px;">
+                        <p style="font-weight:600; margin-bottom:8px; color:#3e2a18;">📋 个人信息</p>
+                        <p><i class="fa-solid fa-phone" style="width:18px;"></i> <span id="phone-blurred" class="phone-blurred" title="点击查看">13516009293</span></p>
+                        <p><i class="fa-regular fa-envelope" style="width:18px;"></i> 1301917073@qq.com</p>
+                        <p><i class="fa-solid fa-location-dot" style="width:18px;"></i> 广东珠海 / 辽宁沈阳</p>
+                        <p><i class="fa-regular fa-calendar" style="width:18px;"></i> 2003.11 · 共产党员</p>
+                        <p><i class="fa-regular fa-clock" style="width:18px;"></i> 每周可实习 4-5 天</p>
+                    </div>
+                </div>
+            </div>
+            <div class="page right-page">
+                <div class="content">
+                    <h2 class="title" style="margin-bottom:10px;">技能 & 经历</h2>
+                    <p style="font-family:'Inter', sans-serif; font-size:10px; color:#9a9a9a; letter-spacing:2px; margin-bottom:15px; font-weight: 500;">SKILLS & EXPERIENCE</p>
+                    
+                    <p style="font-family:'Inter', sans-serif; font-size:12px; color:#4a4a4a; margin-bottom:6px; font-weight:600;">专业软件</p>
+                    <div style="margin-bottom:12px;">
+                        <span class="skill-tag">Photoshop</span>
+                        <span class="skill-tag">InDesign</span>
+                        <span class="skill-tag">Sketchup</span>
+                        <span class="skill-tag">Enscape</span>
+                        <span class="skill-tag">Auto CAD</span>
+                        <span class="skill-tag">Illustrator</span>
+                        <span class="skill-tag">Mars</span>
+                        <span class="skill-tag">Rhino</span>
+                        <span class="skill-tag">Figma</span>
+                    </div>
+
+                    <p style="font-family:'Inter', sans-serif; font-size:12px; color:#4a4a4a; margin-bottom:6px; font-weight:600;">其他技能</p>
+                    <div style="margin-bottom:12px;">
+                        <span class="skill-tag">CET-6</span>
+                        <span class="skill-tag">Office</span>
+                        <span class="skill-tag">Vibe Coding</span>
+                    </div>
+
+                    <div class="divider" style="margin:10px 0;"></div>
+
+                    <p style="font-family:'Inter', sans-serif; font-size:12px; color:#4a4a4a; margin-bottom:6px; font-weight:600;">实习经历</p>
+                    <div style="font-family:'Inter', sans-serif; font-size:11px; color:#4a4a4a; line-height:1.7; margin-bottom:12px;">
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> <strong>枫叶租车</strong> · 设计实习生</p>
+                        <p style="padding-left:16px; font-size:10px; color:#8a8a8a;">新媒体运营部门 · 2025.04 - 2025.06</p>
+                        <p style="padding-left:16px; font-size:10px; color:#8a8a8a;">运营品牌账号，制作产品及用户说明类图文笔记，实习期间提升阅读量15%</p>
+                    </div>
+
+                    <p style="font-family:'Inter', sans-serif; font-size:12px; color:#4a4a4a; margin-bottom:6px; font-weight:600;">校园活动</p>
+                    <div style="font-family:'Inter', sans-serif; font-size:11px; color:#4a4a4a; line-height:1.7; margin-bottom:12px;">
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> 建筑艺术设计学院学生会 · 团总支部副书记 (2021-2023)</p>
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> 鲁迅美术学院学生会实践部 · 部员 (2023-2024)</p>
+                        <p style="padding-left:16px; font-size:10px; color:#8a8a8a;">筹办联欢晚会、运动会、辩论赛、诗词比赛等活动</p>
+                    </div>
+
+                    <div class="divider" style="margin:10px 0;"></div>
+
+                    <p style="font-family:'Inter', sans-serif; font-size:12px; color:#4a4a4a; margin-bottom:6px; font-weight:600;">荣誉奖项</p>
+                    <div style="font-family:'Inter', sans-serif; font-size:10.5px; color:#4a4a4a; line-height:1.8;">
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> 校三好学生 · 连续2年获专业三等奖学金 · 学生工作优秀奖</p>
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> CBDA中国建筑装饰设计艺术作品展 一等奖&二等奖</p>
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> 米兰设计周中国高校设计学科师生优秀作品展 辽宁赛区三等奖</p>
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> HKDADC香港数字艺术设计大赛 一等奖 / 二等奖</p>
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> "国青杯"全国高校艺术设计作品展评学生组 三等奖</p>
+                        <p><span style="color:#c8b8a8; margin-right:6px;">▸</span> 第十八届创意中国设计大奖 三等奖</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 2: 项目目录 ============ -->
+        <div class="slide" id="slide-2">
+            <div class="page left-page">
+                <div class="content">
+                    <h2 class="title" style="margin-bottom:5px;">项目</h2>
+                    <p style="font-family:'Inter', sans-serif; font-size:10px; color:#9a9a9a; letter-spacing:2px; margin-bottom:15px; font-weight: 500;">PROJECTS</p>
+                    <p style="font-family:'Inter', sans-serif; font-size:12px; color:#8a8a8a; margin-bottom:10px;">点击项目查看详情</p>
+                    <ul class="project-list">
+                        <li data-slide="3">
+                            <span class="project-num">01</span>
+                            <div class="project-info">
+                                <div class="p-title">室内设计作品</div>
+                                <div class="p-sub">Interior Design</div>
+                            </div>
+                            <span class="project-arrow">⟶</span>
+                        </li>
+                        <li data-slide="4">
+                            <span class="project-num">02</span>
+                            <div class="project-info">
+                                <div class="p-title">AI 绘本</div>
+                                <div class="p-sub">AI Picture Book</div>
+                            </div>
+                            <span class="project-arrow">⟶</span>
+                        </li>
+                        <li data-slide="5">
+                            <span class="project-num">03</span>
+                            <div class="project-info">
+                                <div class="p-title">AI 视频</div>
+                                <div class="p-sub">AI Video</div>
+                            </div>
+                            <span class="project-arrow">⟶</span>
+                        </li>
+                        <li data-slide="6">
+                            <span class="project-num">04</span>
+                            <div class="project-info">
+                                <div class="p-title">剪辑视频</div>
+                                <div class="p-sub">Edited Video</div>
+                            </div>
+                            <span class="project-arrow">⟶</span>
+                        </li>
+                        <li data-slide="7">
+                            <span class="project-num">05</span>
+                            <div class="project-info">
+                                <div class="p-title">平面设计</div>
+                                <div class="p-sub">Graphic Design</div>
+                            </div>
+                            <span class="project-arrow">⟶</span>
+                        </li>
+                        <li data-slide="8">
+                            <span class="project-num">06</span>
+                            <div class="project-info">
+                                <div class="p-title">Vibe Coding</div>
+                                <div class="p-sub">Vibe Coding</div>
+                            </div>
+                            <span class="project-arrow">⟶</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="page right-page">
+                <div class="content" style="justify-content:center; align-items:center; text-align:center;">
+                    <p class="handwriting" style="font-size: 60px; color: #ffe8f0; line-height:1; font-weight: 300;">✦</p>
+                    <p style="font-family:'Inter', sans-serif; font-size: 22px; color: #ffd0e0; margin: 20px 0; font-weight: 500;">选择左侧<br>项目浏览</p>
+                    <p style="font-family:'Inter', sans-serif; font-size: 11px; color: #9a9a9a;">点击项目名称进入详情</p>
+                    <p class="handwriting" style="font-size: 60px; color: #ffe8f0; line-height:1; margin-top:20px; font-weight: 300;">✦</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 3: 室内设计作品 ============ -->
+        <div class="slide" id="slide-3">
+            <div class="page" style="width:960px; padding:0; background:#faf8f5; position:relative; overflow:visible; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.06),0 8px 16px rgba(0,0,0,0.08),0 20px 40px rgba(0,0,0,0.05),0 40px 80px rgba(0,0,0,0.03); border:1px solid rgba(255,200,220,0.3);">
+                <!-- 三个彩色书签从左侧伸出 -->
+                <div class="interior-bookmark bm1" data-proj="1">
+                    <span class="bm-num">01</span>
+                    <span class="bm-name">玲珑·疏影</span>
+                </div>
+                <div class="interior-bookmark bm2" data-proj="2">
+                    <span class="bm-num">02</span>
+                    <span class="bm-name">夕·光</span>
+                </div>
+                <div class="interior-bookmark bm3" data-proj="3">
+                    <span class="bm-num">03</span>
+                    <span class="bm-name">雪·域</span>
+                </div>
+                <div id="gallery-image" style="width:100%; height:calc(100% - 130px); display:flex; align-items:center; justify-content:center; background:#f0ebe5; overflow:hidden; border-radius:5px 5px 0 0; position:relative;">
+                    <span id="gallery-placeholder" style="color:#b8a898; font-family:'Inter',sans-serif; font-size:13px;">点击书签浏览</span>
+                    <span class="nav-hint left">‹</span>
+                    <span class="nav-hint right">›</span>
+                </div>
+                <div id="gallery-info" style="height:130px; padding:14px 24px 10px; display:flex; flex-direction:column; justify-content:space-between; background:#faf8f5; border-top:1px solid rgba(0,0,0,0.06); border-radius:0 0 5px 5px;">
+                    <div>
+                        <div style="display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                            <span id="gallery-proj-num" style="font-family:'Inter',sans-serif; font-size:11px; color:#a89888; font-weight:500; letter-spacing:0.5px;"></span>
+                            <span id="gallery-title" style="font-family:'Inter',sans-serif; font-size:17px; font-weight:600; color:#2c2c2c;"></span>
+                            <span id="gallery-subtitle" style="font-family:'Inter',sans-serif; font-size:11px; color:#8a7a6a;"></span>
+                        </div>
+                        <div id="gallery-desc-short" style="font-family:'Inter',sans-serif; font-size:10.5px; color:#9a8a7a; line-height:1.5; max-height:32px; overflow:hidden;"></div>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                        <button id="gallery-prev" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">←</button>
+                        <span id="gallery-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:36px; text-align:center; font-weight:500;"></span>
+                        <button id="gallery-next" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 4: AI绘本 ============ -->
+        <div class="slide" id="slide-4">
+            <div class="page" style="width:960px; padding:0; background:#faf8f5; position:relative; overflow:visible; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.06),0 8px 16px rgba(0,0,0,0.08),0 20px 40px rgba(0,0,0,0.05),0 40px 80px rgba(0,0,0,0.03); border:1px solid rgba(255,200,220,0.3);">
+                <div id="aibook-image" style="width:100%; height:calc(100% - 145px); display:flex; align-items:center; justify-content:center; background:#f0ebe5; overflow:hidden; border-radius:5px 5px 0 0; position:relative; cursor:pointer;">
+                    <span id="aibook-placeholder" style="color:#b8a898; font-family:'Inter',sans-serif; font-size:14px;">AI 绘本 · 点击左右翻页</span>
+                    <span class="nav-hint left">‹</span>
+                    <span class="nav-hint right">›</span>
+                </div>
+                <div id="aibook-info" style="height:145px; padding:8px 20px 6px; display:flex; flex-direction:column; justify-content:space-between; background:#faf8f5; border-top:1px solid rgba(0,0,0,0.06); border-radius:0 0 5px 5px;">
+                    <div style="font-family:'Inter',sans-serif; font-size:10px; color:#9a8a7a; line-height:1.6; text-align:left; padding:2px 4px; flex-shrink:0;">
+                        这是一份完全由 AI 辅助生成的互动式绘本文档。主角<span style="font-weight:600; color:#7a6a6a;">"小盆狗"</span>是一个 AI 生成的原创 IP 形象，活泼可爱，带领读者走进一场关于四大名香的寻主冒险。文档中的所有图像均由 AI 生成（包括场景、道具、角色动作等），呈现出统一、明亮的儿童绘本风格。<br>内容以真实存在的四大名香——<span style="font-weight:500;">沉香、檀香、麝香、龙涎香</span>为知识核心，通过小盆狗的寻主探险，逐一介绍每种香的来源、特征与用途。文档中还包含沉香熟水制作步骤、麝香药用提醒、龙涎香形成过程等实体知识，兼顾趣味性与科普性。
+                    </div>
+                    <div id="aibook-tabs" style="display:flex; gap:4px; justify-content:center; overflow-x:auto; padding:2px 0;">
+                        <!-- Tabs injected by JS -->
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                        <button id="aibook-prev" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">←</button>
+                        <span id="aibook-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:36px; text-align:center; font-weight:500;">1 / 15</span>
+                        <button id="aibook-next" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.7; transition:opacity 0.2s; padding:4px 8px;">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 5: AI视频 ============ -->
+        <div class="slide" id="slide-5">
+            <div class="page left-page">
+                <div class="content">
+                    <h2 class="title">[03] AI 视频</h2>
+                    <div class="tags">#AIVIDEO #AIGC #DAILYLOOP #SENSORY</div>
+                    <div class="text">
+                        <p><strong>《感官失调》 / ♾️</strong></p>
+                        <p style="font-size:11px; color:#9a9a9a; margin-bottom:12px;">—— 一部关于生活日常循环的 AI 生成短片</p>
+                        <p>消息弹窗像雨点般不停落下，一条接一条。任务与截止日期层层堆叠，把原本清晰的生活节律冲得七零八落。</p>
+                        <br>
+                        <p>每天醒来，像是掉进了同一天的复制品——闹钟、屏幕、焦虑、再闹钟。</p>
+                        <br>
+                        <p>当外界的信息不停涌入，感官渐渐变得迟钝：明明听得到提示音，却再也惊不起反应；明明看得到日程表，却感觉不到时间在走。</p>
+                        <br>
+                        <p>生活不再是流动的河流，而是一段停不下来的回放，一遍，又一遍。</p>
+                        <br>
+                        <p style="font-size:11px; color:#9a9a9a;">创作工具：Gemini、可灵、豆包<br>主题：现代生活的重复与失衡</p>
+                    </div>
+                    <p style="text-align:right; margin-top:auto; font-size: 14px; color: #ffd0e0; font-family: 'Inter', sans-serif; font-weight: 500;">▶ PLAY VIDEO</p>
+                </div>
+            </div>
+            <div class="page right-page">
+                <div class="content">
+                    <div class="media-box" style="position:relative; overflow:hidden;">
+                        <video controls style="width:100%; height:100%; object-fit:contain; background:#000;">
+                            <source src="ai视频.mp4" type="video/mp4">
+                            您的浏览器不支持 video 标签
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 6: 剪辑视频 ============ -->
+        <div class="slide" id="slide-6">
+            <div class="page left-page">
+                <div class="content">
+                    <h2 class="title">[04] 剪辑视频</h2>
+                    <div class="tags">#EDITING #SHORTFILM #METAPHOR #DESIRE</div>
+                    <div class="text">
+                        <p><strong>《未满之果》 / Enough</strong></p>
+                        <p style="font-size:11px; color:#9a9a9a; margin-bottom:12px;">—— 一部以吃苹果隐喻欲望的影像短片</p>
+                        <p>你咬下一口苹果。</p>
+                        <p>清脆的声响，汁水涌出，甜味在舌尖散开——第一口总是最浓烈的。</p>
+                        <br>
+                        <p>接着是第二口，第三口，第四口。味道慢慢变淡，像被咀嚼声盖过了。</p>
+                        <br>
+                        <p>你一口一口吃完，只剩下果核。胃是满的，心里却像缺了一小块。</p>
+                        <br>
+                        <p>于是你又拿起一颗新的苹果，再咬下去。仿佛上一颗从未存在过。</p>
+                        <br>
+                        <p>每一次得到，都在入口的瞬间开始丢失。欲望从来不是苹果，而是永远差一口的错觉。</p>
+                    </div>
+                    <p style="text-align:right; margin-top:auto; font-size: 14px; color: #ffd0e0; font-family: 'Inter', sans-serif; font-weight: 500;">▶ WATCH FILM</p>
+                </div>
+            </div>
+            <div class="page right-page">
+                <div class="content">
+                    <div class="media-box" style="position:relative; overflow:hidden;">
+                        <video controls style="width:100%; height:100%; object-fit:contain; background:#000;">
+                            <source src="拍摄视频.mp4" type="video/mp4">
+                            您的浏览器不支持 video 标签
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 7: 平面设计 ============ -->
+        <div class="slide" id="slide-7">
+            <div class="page" style="width:960px; padding:0; background:#faf8f5; position:relative; overflow:visible; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.06),0 8px 16px rgba(0,0,0,0.08),0 20px 40px rgba(0,0,0,0.05),0 40px 80px rgba(0,0,0,0.03); border:1px solid rgba(255,200,220,0.3);">
+                <div id="graphic-image" style="width:100%; height:calc(100% - 130px); display:flex; align-items:center; justify-content:center; background:#f0ebe5; overflow:hidden; border-radius:5px 5px 0 0; position:relative; cursor:pointer;">
+                    <span id="graphic-placeholder" style="color:#b8a898; font-family:'Inter',sans-serif; font-size:14px;">点击左右翻页</span>
+                    <span class="nav-hint left">‹</span>
+                    <span class="nav-hint right">›</span>
+                </div>
+                <div id="graphic-info" style="height:165px; padding:8px 20px 6px; display:flex; flex-direction:column; justify-content:space-between; background:#faf8f5; border-top:1px solid rgba(0,0,0,0.06); border-radius:0 0 5px 5px;">
+                    <div id="graphic-tabs" style="display:flex; gap:4px; justify-content:center; overflow-x:auto; padding:2px 0;">
+                        <!-- Tabs injected by JS -->
+                    </div>
+                    <div id="graphic-desc" style="font-family:'Inter',sans-serif; font-size:10.5px; color:#9a8a7a; line-height:1.6; text-align:center; padding:2px 4px;">
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px;">
+                        <button id="graphic-prev" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">←</button>
+                        <span id="graphic-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:36px; text-align:center; font-weight:500;">1 / 32</span>
+                        <button id="graphic-next" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.7; transition:opacity 0.2s; padding:4px 8px;">→</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 8: Vibe Coding ============ -->
+        <div class="slide" id="slide-8">
+            <div class="page" style="width:960px; padding:0; background:#faf8f5; position:relative; overflow:visible; border-radius:5px; box-shadow:0 2px 4px rgba(0,0,0,0.06),0 8px 16px rgba(0,0,0,0.08),0 20px 40px rgba(0,0,0,0.05),0 40px 80px rgba(0,0,0,0.03); border:1px solid rgba(255,200,220,0.3); display:flex; flex-direction:row;">
+                <!-- 左栏：手机截图 -->
+                <div style="flex:1; border-right:1px solid rgba(0,0,0,0.06); display:flex; flex-direction:column; background:#f0ebe5; border-radius:5px 0 0 5px; position:relative; cursor:pointer; overflow:hidden;">
+                    <div id="vibe-gallery" style="flex:1; display:flex; align-items:center; justify-content:center; position:relative;">
+                        <span id="vibe-placeholder" style="color:#b8a898; font-family:'Inter',sans-serif; font-size:13px;">点击左右翻页</span>
+                        <span class="nav-hint" style="left:16px; top:50%; transform:translateY(-50%); position:absolute; font-size:28px; color:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s; pointer-events:none; z-index:2;">‹</span>
+                        <span class="nav-hint" style="right:16px; top:50%; transform:translateY(-50%); position:absolute; font-size:28px; color:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s; pointer-events:none; z-index:2;">›</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; padding:8px 0 14px;">
+                        <button id="vibe-prev" style="background:none; border:none; font-size:14px; color:#8a7a6a; cursor:pointer; opacity:0.4; padding:2px 6px;">←</button>
+                        <span id="vibe-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:30px; text-align:center; font-weight:500;">1 / 5</span>
+                        <button id="vibe-next" style="background:none; border:none; font-size:14px; color:#8a7a6a; cursor:pointer; opacity:0.7; padding:2px 6px;">→</button>
+                    </div>
+                    <!-- 指示点 -->
+                    <div id="vibe-dots" style="display:flex; justify-content:center; gap:6px; padding-bottom:12px;"></div>
+                </div>
+                <!-- 右栏：项目信息 -->
+                <div style="flex:0 0 420px; padding:40px 32px; display:flex; flex-direction:column; justify-content:center; background:#faf8f5; border-radius:0 5px 5px 0;">
+                    <div style="font-family:'Inter',sans-serif; font-size:11px; color:#a89888; font-weight:500; letter-spacing:0.5px; margin-bottom:6px;">[06] VIBE CODING / AI 辅助开发</div>
+                    <h2 style="font-family:'Inter',sans-serif; font-size:28px; font-weight:600; color:#2c2c2c; margin:0 0 4px;">Music DNA</h2>
+                    <p style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; margin:0 0 16px;">测测你的音乐人生</p>
+                    <div style="font-family:'Inter',sans-serif; font-size:11px; color:#9a8a7a; line-height:1.7; margin-bottom:20px;">
+                        一款音乐性格测试互动网站，由 AI 辅助（Vibe Coding）完成前端设计、界面开发和功能实现。用户通过回答趣味问题，探索自己的音乐 DNA。
+                    </div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:24px;">
+                        <span style="background:#ece8f0; color:#6b5a7a; font-family:'Inter',sans-serif; font-size:10px; padding:4px 10px; border-radius:4px;">Vibe Coding</span>
+                        <span style="background:#ece8f0; color:#6b5a7a; font-family:'Inter',sans-serif; font-size:10px; padding:4px 10px; border-radius:4px;">Figma</span>
+                        <span style="background:#ece8f0; color:#6b5a7a; font-family:'Inter',sans-serif; font-size:10px; padding:4px 10px; border-radius:4px;">UI Design</span>
+                        <span style="background:#ece8f0; color:#6b5a7a; font-family:'Inter',sans-serif; font-size:10px; padding:4px 10px; border-radius:4px;">GitHub Pages</span>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <a href="https://jiaxinyang1104.github.io/music-dna/" target="_blank" style="display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:12px; color:#6b5a7a; text-decoration:none; padding:8px 14px; border:1px solid #e0d8e0; border-radius:6px; transition:all 0.2s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                            在线体验 / Visit Live Website ↗
+                        </a>
+                        <a href="https://www.figma.com/design/XKSYzbctXfWpQlkeJEr9Q4/%E6%B5%8B%E8%AF%95%E7%95%8C%E9%9D%A2ui?node-id=0-1" target="_blank" style="display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif; font-size:12px; color:#6b5a7a; text-decoration:none; padding:8px 14px; border:1px solid #e0d8e0; border-radius:6px; transition:all 0.2s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                            设计稿 / View in Figma ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 9: 联系我 ============ -->
+        <div class="slide" id="slide-9">
+            <div class="page left-page">
+                <div class="content">
+                    <h2 class="title" style="margin-bottom:5px;">联系我</h2>
+                    <p style="font-family:'Inter', sans-serif; font-size:10px; color:#9a9a9a; letter-spacing:2px; margin-bottom:20px; font-weight: 500;">GET IN TOUCH</p>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-regular fa-envelope"></i></div>
+                        <div class="contact-detail">
+                            <div class="c-label">Email</div>
+                            <div class="c-value">1301917073@qq.com</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-regular fa-phone"></i></div>
+                        <div class="contact-detail">
+                            <div class="c-label">Phone</div>
+                            <div class="c-value">13516009293</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-regular fa-location-dot"></i></div>
+                        <div class="contact-detail">
+                            <div class="c-label">Location</div>
+                            <div class="c-value">辽宁 · 沈阳</div>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="contact-detail">
+                            <div class="c-label">小红书</div>
+                            <div class="c-value">不吃人饭（锦鲤版）</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page right-page">
+                <div class="content" style="justify-content:center; align-items:center; text-align:center;">
+                    <p style="font-family:'Inter', sans-serif; font-size: 40px; color: #ffd0e0; line-height:1.2; font-weight: 600;">
+                        一起<br>创造点什么？
+                    </p>
+                    <div style="margin-top:30px;">
+                        <p style="font-family:'Inter', sans-serif; font-size:12px; color:#8a8a8a;">随时欢迎约聊 👋</p>
+                        <p style="font-family:'Inter', sans-serif; font-size:11px; color:#9a9a9a; margin-top:10px;">Available for freelance & collaboration</p>
+                    </div>
+                    <div style="margin-top:auto; width:100%;">
+                        <div style="display:flex; gap:10px; justify-content:center;">
+                            <div style="width:40px; height:40px; background:#fff0f5; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ffd0e0; border:1px solid #ffe8f0; cursor:pointer;">
+                                <i class="fa-regular fa-envelope"></i>
+                            </div>
+                            <div style="width:40px; height:40px; background:#fff0f5; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ffd0e0; border:1px solid #ffe8f0; cursor:pointer;">
+                                <i class="fa-regular fa-heart"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ SLIDE 10: 封底 ============ -->
+        <div class="slide" id="slide-10">
+            <div class="page cover-page" style="justify-content:center; align-items:center;">
+                <p style="font-family:'Inter', sans-serif; font-size: 28px; color: #ffd8e8; margin-bottom: 20px; font-weight: 300;">✦</p>
+                <p style="font-family:'Inter', sans-serif; font-size: 48px; color: #2c2c2c; font-weight: 700;">END OF FILE</p>
+                <p style="font-family:'Inter', sans-serif; font-size: 20px; color: #ffd0e0; margin-top: 20px; font-weight: 400;">Thanks for watching</p>
+                <p style="font-family:'Inter', sans-serif; font-size:11px; color:#9a9a9a; margin-top: 40px;">© 2025 JiaXin Yang · All Rights Reserved</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============ 底部控制区 ============ -->
+    <div class="bottom-controls" id="bottom-controls">
+        <button class="arrow-btn prev" id="prev-btn">⟵</button>
+
+        <div class="bottom-nav" id="bottom-nav">
+            <div class="nav-btn" data-slide="1">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="8" r="4"/>
+                    <path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>
+                </svg>
+                简历
+            </div>
+            <div class="nav-btn" data-slide="2" id="project-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2"/>
+                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+                    <line x1="12" y1="12" x2="12" y2="18"/>
+                    <line x1="9" y1="15" x2="15" y2="15"/>
+                </svg>
+                项目
+                <!-- 项目下拉菜单 -->
+                <div class="project-dropdown" id="project-dropdown">
+                    <div class="project-dropdown-item" data-slide="3">
+                        <span class="project-dropdown-num">01</span>
+                        <span class="project-dropdown-name">室内设计</span>
+                    </div>
+                    <div class="project-dropdown-item" data-slide="4">
+                        <span class="project-dropdown-num">02</span>
+                        <span class="project-dropdown-name">AI 绘本</span>
+                    </div>
+                    <div class="project-dropdown-item" data-slide="5">
+                        <span class="project-dropdown-num">03</span>
+                        <span class="project-dropdown-name">AI 视频</span>
+                    </div>
+                    <div class="project-dropdown-item" data-slide="6">
+                        <span class="project-dropdown-num">04</span>
+                        <span class="project-dropdown-name">剪辑视频</span>
+                    </div>
+                    <div class="project-dropdown-item" data-slide="7">
+                        <span class="project-dropdown-num">05</span>
+                        <span class="project-dropdown-name">平面设计</span>
+                    </div>
+                    <div class="project-dropdown-item" data-slide="8">
+                        <span class="project-dropdown-num">06</span>
+                        <span class="project-dropdown-name">Vibe Coding</span>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-btn" data-slide="9">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 6l8 6 8-6"/>
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <polyline points="2,8 12,14 22,8"/>
+                </svg>
+                联系
+            </div>
+        </div>
+
+        <button class="arrow-btn next" id="next-btn">⟶</button>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const sidebar = document.getElementById('sidebar');
+        const slidesWrapper = document.getElementById('slides-wrapper');
+        const bottomNav = document.getElementById('bottom-nav');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const projectBtn = document.getElementById('project-btn');
+        const projectDropdown = document.getElementById('project-dropdown');
+        
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+
+        // ============ 跳转到指定 slide ============
+        function goToSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            currentIndex = index;
+            updateView();
+        }
+
+        // ============ 更新视图 ============
+        function updateView() {
+            slides.forEach((slide, index) => {
+                if (index === currentIndex) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            // 侧边栏：只在 简介(1)、项目目录(2)、联系(8) 显示
+            const sidebarPages = [1, 2, 9];
+            if (sidebarPages.includes(currentIndex)) {
+                sidebar.classList.remove('hidden-sidebar');
+                sidebar.classList.add('visible');
+            } else {
+                sidebar.classList.remove('visible');
+                sidebar.classList.add('hidden-sidebar');
+            }
+
+            // 书的放大动效：在项目详情页(3-7)时 zoom-in
+            const zoomPages = [3, 4, 5, 6, 7, 8];
+            slidesWrapper.classList.toggle('zoom-in', zoomPages.includes(currentIndex));
+
+            // 箭头按钮
+            prevBtn.classList.toggle('visible', currentIndex > 0);
+            nextBtn.classList.toggle('visible', currentIndex < totalSlides - 1);
+
+            // 底部导航：在 封面(0) 和 封底(10) 隐藏
+            bottomNav.classList.toggle('visible', currentIndex > 0 && currentIndex < totalSlides - 1);
+
+            // 底部社交栏：只在简介页(1)显示
+            const footerSocial = document.getElementById('footer-social');
+            footerSocial.classList.toggle('visible', currentIndex === 1);
+
+            // Download Resume：只在简介页(1)显示
+            const resumeDownload = document.getElementById('resume-download');
+            resumeDownload.style.display = currentIndex === 1 ? 'block' : 'none';
+
+            // 底部导航按钮高亮
+            navBtns.forEach(btn => {
+                const target = parseInt(btn.dataset.slide);
+                btn.classList.toggle('active-nav-btn', target === currentIndex);
+            });
+        }
+
+        // ============ 导航 ============
+        function goPrev() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateView();
+            }
+        }
+
+        function goNext() {
+            if (currentIndex < totalSlides - 1) {
+                currentIndex++;
+                updateView();
+            }
+        }
+
+        prevBtn.addEventListener('click', goPrev);
+        nextBtn.addEventListener('click', goNext);
+
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') goPrev();
+            if (e.key === 'ArrowRight') goNext();
+        });
+
+        // ============ 底部导航按钮点击 ============
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // 如果点击的是项目下拉菜单内的元素，不触发按钮跳转
+                if (e.target.closest('.project-dropdown')) return;
+                const target = parseInt(btn.dataset.slide);
+                goToSlide(target);
+            });
+        });
+
+        // ============ 项目下拉菜单显示/隐藏 ============
+        projectBtn.addEventListener('mouseenter', () => {
+            projectDropdown.classList.add('visible');
+        });
+        projectBtn.addEventListener('mouseleave', () => {
+            projectDropdown.classList.remove('visible');
+        });
+
+        // ============ 项目下拉菜单项点击 ============
+        document.querySelectorAll('.project-dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const target = parseInt(item.dataset.slide);
+                goToSlide(target);
+                projectDropdown.classList.remove('visible');
+            });
+        });
+
+        // ============ 项目列表点击跳转 ============
+        document.querySelectorAll('.project-list li').forEach(item => {
+            item.addEventListener('click', () => {
+                const target = parseInt(item.dataset.slide);
+                goToSlide(target);
+            });
+        });
+
+        // ============ 室内设计画廊 ============
+        const galleryData = {
+            1: {
+                title: '玲珑·疏影',
+                subtitle: '展厅室内空间设计',
+                desc: '<p>以人与自然和谐共生为理念，融合艺术、文化与自然。灵感源于书页、山水与树影，巧用竹纹板模拟竹影，体现东方文化与自然共生。</p><br><p>空间设计展现三者交融魅力，让观者感受中华艺术韵味。<br>材质：竹纹板 · 色调：暖白 · 光影：树影流转</p>',
+                images: ['interior/page_04.png', 'interior/page_05_l.png', 'interior/page_05_r.png', 'interior/page_06_l.png', 'interior/page_06_r.png', 'interior/page_07_l.png']
+            },
+            2: {
+                title: '夕·光',
+                subtitle: '餐饮室内空间设计',
+                desc: '<p>融合闽南文化建筑特色与现代中式餐饮理念，以红砖白石、光厅暗屋营造历史韵味。色彩以暖色调和红色为主，选用木材与石材，营造温典雅氛围。</p><br><p>空间布局巧用绿植和木质屏风作隔断，中心舞台以水流串联，结合圆形与方形结构，象征天圆地方。</p>',
+                images: ['interior/page_08.png', 'interior/page_09_l.png', 'interior/page_09_r.png', 'interior/page_10_l.png', 'interior/page_10_r.png', 'interior/page_11_l.png']
+            },
+            3: {
+                title: '雪·域',
+                subtitle: '酒店空间设计',
+                desc: '<p>东北亚滑雪度假酒店，融合冰雪自然景观与现代简约设计。建筑外观大面积运用落地窗，确保室内光线充足，尽览滑雪场壮丽景色。</p><br><p>室内延续简约舒适理念，暖色调地毯与木质墙面结合，营造温馨放松的居住氛围，为冬运会配套而规划。</p>',
+                images: ['interior/page_12.png', 'interior/page_13_l.png', 'interior/page_13_r.png', 'interior/page_14_l.png', 'interior/page_14_r.png', 'interior/page_15_l.png', 'interior/page_15_r.png']
+            }
+        };
+
+        let currentProj = null;
+        let currentImageIndex = 0;
+
+        const galleryImage = document.getElementById('gallery-image');
+        const galleryCounter = document.getElementById('gallery-counter');
+        const galleryPrev = document.getElementById('gallery-prev');
+        const galleryNext = document.getElementById('gallery-next');
+        const galleryProjNum = document.getElementById('gallery-proj-num');
+        const galleryTitle = document.getElementById('gallery-title');
+        const gallerySubtitle = document.getElementById('gallery-subtitle');
+        const galleryDescShort = document.getElementById('gallery-desc-short');
+        const galleryPlaceholder = document.getElementById('gallery-placeholder');
+        let galleryImgEl = null;
+
+        function showGalleryImage(projId, index) {
+            const data = galleryData[projId];
+            if (!data || !data.images[index]) return;
+            currentImageIndex = index;
+            // Hide placeholder
+            if (galleryPlaceholder) galleryPlaceholder.style.display = 'none';
+            // Create or update img element
+            if (!galleryImgEl) {
+                galleryImgEl = document.createElement('img');
+                galleryImgEl.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+                galleryImgEl.alt = '';
+                galleryImage.appendChild(galleryImgEl);
+            }
+            galleryImgEl.src = data.images[index];
+            galleryCounter.textContent = `${index + 1} / ${data.images.length}`;
+            galleryPrev.style.opacity = index === 0 ? '0.2' : '0.7';
+            galleryNext.style.opacity = index === data.images.length - 1 ? '0.2' : '0.7';
+        }
+
+        function updateInteriorPage(projId) {
+            const data = galleryData[projId];
+            if (!data) return;
+
+            currentProj = projId;
+            showGalleryImage(projId, 0);
+
+            // Update info panel
+            galleryProjNum.textContent = `Design 0${projId}`;
+            galleryTitle.textContent = data.title;
+            gallerySubtitle.textContent = `——${data.subtitle}`;
+            // Strip HTML tags for short desc, take first sentence
+            const plainDesc = data.desc.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+            galleryDescShort.textContent = plainDesc;
+
+            // Highlight bookmark
+            document.querySelectorAll('.interior-bookmark').forEach(el => {
+                el.classList.remove('active');
+            });
+            const active = document.querySelector(`.interior-bookmark.bm${projId}`);
+            if (active) active.classList.add('active');
+        }
+
+        document.querySelectorAll('.interior-bookmark').forEach(item => {
+            item.addEventListener('click', () => {
+                const projId = parseInt(item.dataset.proj);
+                updateInteriorPage(projId);
+            });
+        });
+
+        galleryPrev.addEventListener('click', () => {
+            if (currentProj && currentImageIndex > 0) {
+                showGalleryImage(currentProj, currentImageIndex - 1);
+            }
+        });
+
+        galleryNext.addEventListener('click', () => {
+            if (currentProj) {
+                const data = galleryData[currentProj];
+                if (currentImageIndex < data.images.length - 1) {
+                    showGalleryImage(currentProj, currentImageIndex + 1);
+                }
+            }
+        });
+
+        // 点击图片左右两侧翻页
+        galleryImage.addEventListener('click', (e) => {
+            if (!currentProj) return;
+            const rect = galleryImage.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width * 0.4) {
+                if (currentImageIndex > 0) showGalleryImage(currentProj, currentImageIndex - 1);
+            } else if (x > rect.width * 0.6) {
+                const data = galleryData[currentProj];
+                if (currentImageIndex < data.images.length - 1) showGalleryImage(currentProj, currentImageIndex + 1);
+            }
+        });
+
+        // === AI绘本 翻页阅读器 ===
+        const aibookImage = document.getElementById('aibook-image');
+        const aibookPlaceholder = document.getElementById('aibook-placeholder');
+        const aibookTabs = document.getElementById('aibook-tabs');
+        const aibookCounter = document.getElementById('aibook-counter');
+        const aibookPrev = document.getElementById('aibook-prev');
+        const aibookNext = document.getElementById('aibook-next');
+        const TOTAL_PAGES = 15;
+        let aibookCurrent = 0;
+        let aibookImgEl = null;
+
+        // Generate tabs
+        for (let i = 0; i < TOTAL_PAGES; i++) {
+            const tab = document.createElement('div');
+            tab.className = 'aibook-tab';
+            tab.textContent = i + 1;
+            tab.addEventListener('click', () => showAibookPage(i));
+            aibookTabs.appendChild(tab);
+        }
+
+        function showAibookPage(index) {
+            if (index < 0 || index >= TOTAL_PAGES) return;
+            aibookCurrent = index;
+            // Hide placeholder
+            if (aibookPlaceholder) aibookPlaceholder.style.display = 'none';
+            // Create or update img
+            const pageNum = String(index + 1).padStart(2, '0');
+            if (!aibookImgEl) {
+                aibookImgEl = document.createElement('img');
+                aibookImgEl.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+                aibookImgEl.alt = '';
+                aibookImage.appendChild(aibookImgEl);
+            }
+            aibookImgEl.src = `aibook/page_${pageNum}.png`;
+            // Update counter
+            aibookCounter.textContent = `${index + 1} / ${TOTAL_PAGES}`;
+            // Update buttons
+            aibookPrev.style.opacity = index === 0 ? '0.2' : '0.7';
+            aibookNext.style.opacity = index === TOTAL_PAGES - 1 ? '0.2' : '0.7';
+            // Highlight tab
+            const tabs = aibookTabs.querySelectorAll('.aibook-tab');
+            tabs.forEach((t, i) => t.classList.toggle('active', i === index));
+            // Scroll tab into view
+            tabs[index]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
+        aibookPrev.addEventListener('click', () => {
+            if (aibookCurrent > 0) showAibookPage(aibookCurrent - 1);
+        });
+        aibookNext.addEventListener('click', () => {
+            if (aibookCurrent < TOTAL_PAGES - 1) showAibookPage(aibookCurrent + 1);
+        });
+
+        // Click image to flip
+        aibookImage.addEventListener('click', (e) => {
+            const rect = aibookImage.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width * 0.4) {
+                if (aibookCurrent > 0) showAibookPage(aibookCurrent - 1);
+            } else if (x > rect.width * 0.6) {
+                if (aibookCurrent < TOTAL_PAGES - 1) showAibookPage(aibookCurrent + 1);
+            }
+        });
+
+        // Show first page by default
+        showAibookPage(0);
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            const activeSlide = document.querySelector('.slide.active');
+            if (!activeSlide || activeSlide.id !== 'slide-4') return;
+            if (e.key === 'ArrowLeft' && aibookCurrent > 0) {
+                e.preventDefault();
+                showAibookPage(aibookCurrent - 1);
+            } else if (e.key === 'ArrowRight' && aibookCurrent < TOTAL_PAGES - 1) {
+                e.preventDefault();
+                showAibookPage(aibookCurrent + 1);
+            }
+        });
+
+        // === 平面设计 翻页画廊 ===
+        const graphicImage = document.getElementById('graphic-image');
+        const graphicPlaceholder = document.getElementById('graphic-placeholder');
+        const graphicTabs = document.getElementById('graphic-tabs');
+        const graphicCounter = document.getElementById('graphic-counter');
+        const graphicPrev = document.getElementById('graphic-prev');
+        const graphicNext = document.getElementById('graphic-next');
+        const graphicDesc = document.getElementById('graphic-desc');
+        const TOTAL_GRAPHIC = 32;
+        let graphicCurrent = 0;
+        let graphicImgEl = null;
+
+        const graphicProjects = [
+            { name: '庐江县文创设计', start: 3, desc: '庐江县文创设计整体视觉方案，涵盖区域品牌形象与文创产品包装设计。' },
+            { name: '524 红苕', start: 6, desc: '"524 红苕"原包装改造设计，包括品牌 LOGO 重新设计与包装视觉升级。' },
+            { name: '三家大米', start: 9, desc: '"三家大米"品牌包装改造，以现代简约风格重塑农产品包装形象。' },
+            { name: '黄金梨', start: 13, desc: '"黄金梨"包装改造方案，包含多版设计对比与实物效果呈现。' },
+            { name: '美宁食材', start: 21, desc: '"美宁食材"全案品牌改造——果蔬礼包设计、IP 形象「小宁」及周边衍生。' }
+        ];
+
+        // Build tabs
+        graphicProjects.forEach((proj, i) => {
+            const tab = document.createElement('div');
+            tab.className = 'graphic-tab';
+            tab.textContent = proj.name;
+            tab.addEventListener('click', () => {
+                showGraphicPage(proj.start - 1); // 0-indexed
+            });
+            graphicTabs.appendChild(tab);
+        });
+
+        function showGraphicPage(index) {
+            if (index < 0 || index >= TOTAL_GRAPHIC) return;
+            graphicCurrent = index;
+            if (graphicPlaceholder) graphicPlaceholder.style.display = 'none';
+            const pageNum = String(index + 1).padStart(2, '0');
+            if (!graphicImgEl) {
+                graphicImgEl = document.createElement('img');
+                graphicImgEl.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+                graphicImgEl.alt = '';
+                graphicImage.appendChild(graphicImgEl);
+            }
+            graphicImgEl.src = `graphic/page_${pageNum}.png`;
+            graphicCounter.textContent = `${index + 1} / ${TOTAL_GRAPHIC}`;
+            graphicPrev.style.opacity = index === 0 ? '0.2' : '0.7';
+            graphicNext.style.opacity = index === TOTAL_GRAPHIC - 1 ? '0.2' : '0.7';
+            // Highlight correct tab
+            const tabs = graphicTabs.querySelectorAll('.graphic-tab');
+            let activeTab = -1;
+            for (let i = graphicProjects.length - 1; i >= 0; i--) {
+                if (index + 1 >= graphicProjects[i].start) { activeTab = i; break; }
+            }
+            tabs.forEach((t, i) => t.classList.toggle('active', i === activeTab));
+            // Update description
+            if (graphicDesc) {
+                graphicDesc.textContent = activeTab >= 0 ? graphicProjects[activeTab].desc : '';
+            }
+        }
+
+        graphicPrev.addEventListener('click', () => {
+            if (graphicCurrent > 0) showGraphicPage(graphicCurrent - 1);
+        });
+        graphicNext.addEventListener('click', () => {
+            if (graphicCurrent < TOTAL_GRAPHIC - 1) showGraphicPage(graphicCurrent + 1);
+        });
+
+        graphicImage.addEventListener('click', (e) => {
+            const rect = graphicImage.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width * 0.4 && graphicCurrent > 0) {
+                showGraphicPage(graphicCurrent - 1);
+            } else if (x > rect.width * 0.6 && graphicCurrent < TOTAL_GRAPHIC - 1) {
+                showGraphicPage(graphicCurrent + 1);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const activeSlide = document.querySelector('.slide.active');
+            if (!activeSlide || activeSlide.id !== 'slide-7') return;
+            if (e.key === 'ArrowLeft' && graphicCurrent > 0) {
+                e.preventDefault();
+                showGraphicPage(graphicCurrent - 1);
+            } else if (e.key === 'ArrowRight' && graphicCurrent < TOTAL_GRAPHIC - 1) {
+                e.preventDefault();
+                showGraphicPage(graphicCurrent + 1);
+            }
+        });
+
+        showGraphicPage(0);
+
+        // === Vibe Coding 双栏展示 ===
+        const vibeGallery = document.getElementById('vibe-gallery');
+        const vibePlaceholder = document.getElementById('vibe-placeholder');
+        const vibeCounter = document.getElementById('vibe-counter');
+        const vibePrev = document.getElementById('vibe-prev');
+        const vibeNext = document.getElementById('vibe-next');
+        const vibeDots = document.getElementById('vibe-dots');
+        const VIBE_TOTAL = 5;
+        let vibeCurrent = 0;
+        let vibeImgEl = null;
+
+        const vibeImages = ['首页', '导入页', '问答页', '分析页', '报告页'];
+
+        // Build dots
+        for (let i = 0; i < VIBE_TOTAL; i++) {
+            const dot = document.createElement('span');
+            dot.style.cssText = `width:8px;height:8px;border-radius:50%;background:#c8c0c0;transition:background 0.2s;cursor:pointer;`;
+            dot.addEventListener('click', () => showVibeImage(i));
+            vibeDots.appendChild(dot);
+        }
+
+        function showVibeImage(index) {
+            if (index < 0 || index >= VIBE_TOTAL) return;
+            vibeCurrent = index;
+            if (vibePlaceholder) vibePlaceholder.style.display = 'none';
+            if (!vibeImgEl) {
+                vibeImgEl = document.createElement('img');
+                vibeImgEl.style.cssText = 'max-width:90%;max-height:90%;object-fit:contain;';
+                vibeImgEl.alt = '';
+                vibeGallery.appendChild(vibeImgEl);
+            }
+            vibeImgEl.src = `vibe/${vibeImages[index]}.png`;
+            vibeCounter.textContent = `${vibeImages[index]} (${index + 1} / ${VIBE_TOTAL})`;
+            vibePrev.style.opacity = index === 0 ? '0.2' : '0.7';
+            vibeNext.style.opacity = index === VIBE_TOTAL - 1 ? '0.2' : '0.7';
+            // Update dots
+            const dots = vibeDots.querySelectorAll('span');
+            dots.forEach((d, i) => d.style.background = i === index ? '#6b5a7a' : '#c8c0c0');
+        }
+
+        vibePrev.addEventListener('click', () => { if (vibeCurrent > 0) showVibeImage(vibeCurrent - 1); });
+        vibeNext.addEventListener('click', () => { if (vibeCurrent < VIBE_TOTAL - 1) showVibeImage(vibeCurrent + 1); });
+
+        vibeGallery.addEventListener('click', (e) => {
+            const rect = vibeGallery.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width * 0.4 && vibeCurrent > 0) showVibeImage(vibeCurrent - 1);
+            else if (x > rect.width * 0.6 && vibeCurrent < VIBE_TOTAL - 1) showVibeImage(vibeCurrent + 1);
+        });
+
+        // Hover nav hints
+        vibeGallery.addEventListener('mouseenter', () => {
+            vibeGallery.querySelectorAll('.nav-hint').forEach(h => h.style.opacity = '1');
+        });
+        vibeGallery.addEventListener('mouseleave', () => {
+            vibeGallery.querySelectorAll('.nav-hint').forEach(h => h.style.opacity = '0');
+        });
+
+        showVibeImage(0);
+
+        // === 手机号高斯模糊解锁 ===
+        const phoneEl = document.getElementById('phone-blurred');
+        if (phoneEl) {
+            phoneEl.addEventListener('click', () => {
+                if (phoneEl.classList.contains('revealed')) return;
+                const input = prompt('🔒 请输入密码查看手机号：');
+                if (input === '200311') {
+                    phoneEl.classList.add('revealed');
+                    phoneEl.style.filter = 'blur(0)';
+                } else if (input !== null) {
+                    alert('❌ 密码错误，请重试。');
+                }
+            });
+        }
+
+        updateView();
+    });
+</script>
+
+</body>
+</html>
