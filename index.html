@@ -14,11 +14,20 @@
         /* ================= 基础重置 ================= */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            background-color: #ffffff;
+            background-color: #fbf8f6;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; margin: 0;
             color: #2c2c2c;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
         .handwriting { font-family: 'Inter', sans-serif; font-weight: 500; }
         .serif-title { font-family: 'Caveat', cursive; font-weight: 600; }
@@ -72,20 +81,41 @@
         .slide {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+            opacity: 0; pointer-events: none;
+            transform: translateX(24px) scale(0.985);
+            transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .slide.active { opacity: 1; pointer-events: auto; z-index: 10; }
+        .slide.active {
+            opacity: 1; pointer-events: auto; z-index: 10;
+            transform: translateX(0) scale(1);
+        }
+
+        /* Stagger reveal for content inside active slide */
+        .slide.active .content > * {
+            animation: fadeSlideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+        .slide.active .content > *:nth-child(1) { animation-delay: 0.05s; }
+        .slide.active .content > *:nth-child(2) { animation-delay: 0.1s; }
+        .slide.active .content > *:nth-child(3) { animation-delay: 0.15s; }
+        .slide.active .content > *:nth-child(4) { animation-delay: 0.2s; }
+        .slide.active .content > *:nth-child(5) { animation-delay: 0.25s; }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
         /* ================= 纸张样式 ================= */
         .page {
             width: 480px; height: 680px;
-            background-color: #fff5f8;
+            background-color: #fffafc;
             position: relative; padding: 40px;
             box-shadow: 
-                0 2px 4px rgba(0,0,0,0.06),
-                0 8px 16px rgba(0,0,0,0.08),
-                0 20px 40px rgba(0,0,0,0.05),
-                0 40px 80px rgba(0,0,0,0.03);
+                0 1px 2px rgba(15,10,10,0.04),
+                0 4px 10px rgba(15,10,10,0.05),
+                0 16px 36px rgba(15,10,10,0.04),
+                0 40px 80px rgba(15,10,10,0.03);
+            border-radius: 3px 4px 4px 3px;
             border: 1px solid rgba(255, 200, 220, 0.3);
             display: flex; flex-direction: column;
         }
@@ -141,11 +171,20 @@
             align-items: center; 
             gap: 15px;
             cursor: pointer;
-            transition: background-color 0.2s, padding-left 0.2s;
-            border-radius: 4px;
-            padding-left: 5px;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 6px;
+            padding-left: 8px;
+            margin: 0 -4px;
         }
-        .project-list li:hover { background-color: #fff0f5; padding-left: 15px; }
+        .project-list li:hover { 
+            background-color: #fff0f5; 
+            padding-left: 20px;
+            transform: translateX(2px);
+        }
+        .project-list li:active {
+            transform: scale(0.985);
+            transition: all 0.1s ease;
+        }
         .project-list li:last-child { border-bottom: none; }
         .project-num { 
             font-family: 'Inter', sans-serif; 
@@ -302,13 +341,25 @@
             font-family: 'Inter', sans-serif;
             font-size: 15px;
             font-weight: 500;
-            color: #4a4a4a;
-            transition: background-color 0.25s, color 0.25s, box-shadow 0.25s;
+            color: #3d3740;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
             position: relative;
+            will-change: transform;
         }
-        .nav-btn:hover { background-color: #ffe8f0; color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .nav-btn.active-nav-btn { background-color: #ffd8e8; color: #1a1a1a; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .nav-btn:hover { 
+            background-color: #ffe8f0; color: #1a1a1a; 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(107,90,122,0.1); 
+        }
+        .nav-btn:active {
+            transform: translateY(0) scale(0.97);
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-btn.active-nav-btn { 
+            background-color: #ffd8e8; color: #1a1a1a; 
+            box-shadow: 0 2px 12px rgba(107,90,122,0.08); 
+        }
 
         .nav-btn svg {
             width: 18px;
@@ -456,6 +507,15 @@
         #graphic-image:hover .nav-hint { opacity: 1; }
         #graphic-image .nav-hint.left { left: 24px; }
         #graphic-image .nav-hint.right { right: 24px; }
+
+        /* Gallery image load animations */
+        #gallery-image img, #aibook-image img, #graphic-image img {
+            animation: imgReveal 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes imgReveal {
+            from { opacity: 0; transform: scale(1.04); }
+            to   { opacity: 1; transform: scale(1); }
+        }
         .graphic-tab {
             padding: 6px 14px;
             font-family:'Inter',sans-serif; font-size:11px; font-weight:500;
