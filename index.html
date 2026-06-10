@@ -257,6 +257,7 @@
             align-items: center;
             justify-content: center;
             transition: left 0.45s ease, transform 0.45s ease;
+            z-index: 50;
         }
         .bottom-controls .arrow-btn.prev {
             position: absolute;
@@ -345,7 +346,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
             position: relative;
-            will-change: transform;
         }
         .nav-btn:hover { 
             background-color: #ffe8f0; color: #1a1a1a; 
@@ -383,7 +383,7 @@
             pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
-            z-index: 100;
+            z-index: 200;
         }
         .project-dropdown::after {
             content: '';
