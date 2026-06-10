@@ -697,10 +697,8 @@
                         </div>
                         <div id="gallery-desc-short" style="font-family:'Inter',sans-serif; font-size:10.5px; color:#9a8a7a; line-height:1.5; max-height:32px; overflow:hidden;"></div>
                     </div>
-                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px;">
-                        <button id="gallery-prev" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">←</button>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:0;">
                         <span id="gallery-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:36px; text-align:center; font-weight:500;"></span>
-                        <button id="gallery-next" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">→</button>
                     </div>
                 </div>
             </div>
@@ -721,10 +719,8 @@
                     <div id="aibook-tabs" style="display:flex; gap:4px; justify-content:center; overflow-x:auto; padding:2px 0;">
                         <!-- Tabs injected by JS -->
                     </div>
-                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px;">
-                        <button id="aibook-prev" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">←</button>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:0;">
                         <span id="aibook-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:36px; text-align:center; font-weight:500;">1 / 15</span>
-                        <button id="aibook-next" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.7; transition:opacity 0.2s; padding:4px 8px;">→</button>
                     </div>
                 </div>
             </div>
@@ -813,10 +809,8 @@
                     </div>
                     <div id="graphic-desc" style="font-family:'Inter',sans-serif; font-size:10.5px; color:#9a8a7a; line-height:1.6; text-align:center; padding:2px 4px;">
                     </div>
-                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:12px;">
-                        <button id="graphic-prev" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.4; transition:opacity 0.2s; padding:4px 8px;">←</button>
+                    <div style="display:flex; align-items:center; justify-content:flex-end; gap:0;">
                         <span id="graphic-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:36px; text-align:center; font-weight:500;">1 / 32</span>
-                        <button id="graphic-next" style="background:none; border:none; font-size:16px; color:#8a7a6a; cursor:pointer; opacity:0.7; transition:opacity 0.2s; padding:4px 8px;">→</button>
                     </div>
                 </div>
             </div>
@@ -832,10 +826,8 @@
                         <span class="nav-hint" style="left:16px; top:50%; transform:translateY(-50%); position:absolute; font-size:28px; color:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s; pointer-events:none; z-index:2;">‹</span>
                         <span class="nav-hint" style="right:16px; top:50%; transform:translateY(-50%); position:absolute; font-size:28px; color:rgba(0,0,0,0.3); opacity:0; transition:opacity 0.25s; pointer-events:none; z-index:2;">›</span>
                     </div>
-                    <div style="display:flex; align-items:center; justify-content:center; gap:8px; padding:8px 0 14px;">
-                        <button id="vibe-prev" style="background:none; border:none; font-size:14px; color:#8a7a6a; cursor:pointer; opacity:0.4; padding:2px 6px;">←</button>
+                    <div style="display:flex; align-items:center; justify-content:center; gap:0; padding:8px 0 14px;">
                         <span id="vibe-counter" style="font-family:'Inter',sans-serif; font-size:12px; color:#8a7a6a; min-width:30px; text-align:center; font-weight:500;">1 / 5</span>
-                        <button id="vibe-next" style="background:none; border:none; font-size:14px; color:#8a7a6a; cursor:pointer; opacity:0.7; padding:2px 6px;">→</button>
                     </div>
                     <!-- 指示点 -->
                     <div id="vibe-dots" style="display:flex; justify-content:center; gap:6px; padding-bottom:12px;"></div>
@@ -1000,7 +992,7 @@
 
         <div style="display:flex; flex-direction:column; align-items:center;">
             <button class="arrow-btn next" id="next-btn">⟶</button>
-            <span class="nav-hint-text" id="nav-hint-text" style="font-family:'Inter',sans-serif; font-size:10px; color:#b8a8a8; text-align:center; letter-spacing:0.5px; margin-top:2px;">点击到下一页</span>
+            <span class="nav-hint-text" id="nav-hint-text" style="font-family:'Inter',sans-serif; font-size:10px; color:#b8a8a8; text-align:center; letter-spacing:0.5px; margin-top:2px;">点击到下一个项目</span>
         </div>
     </div>
 
@@ -1190,8 +1182,6 @@
 
         const galleryImage = document.getElementById('gallery-image');
         const galleryCounter = document.getElementById('gallery-counter');
-        const galleryPrev = document.getElementById('gallery-prev');
-        const galleryNext = document.getElementById('gallery-next');
         const galleryProjNum = document.getElementById('gallery-proj-num');
         const galleryTitle = document.getElementById('gallery-title');
         const gallerySubtitle = document.getElementById('gallery-subtitle');
@@ -1214,8 +1204,6 @@
             }
             galleryImgEl.src = data.images[index];
             galleryCounter.textContent = `${index + 1} / ${data.images.length}`;
-            galleryPrev.style.opacity = index === 0 ? '0.2' : '0.7';
-            galleryNext.style.opacity = index === data.images.length - 1 ? '0.2' : '0.7';
         }
 
         function updateInteriorPage(projId) {
@@ -1248,21 +1236,6 @@
             });
         });
 
-        galleryPrev.addEventListener('click', () => {
-            if (currentProj && currentImageIndex > 0) {
-                showGalleryImage(currentProj, currentImageIndex - 1);
-            }
-        });
-
-        galleryNext.addEventListener('click', () => {
-            if (currentProj) {
-                const data = galleryData[currentProj];
-                if (currentImageIndex < data.images.length - 1) {
-                    showGalleryImage(currentProj, currentImageIndex + 1);
-                }
-            }
-        });
-
         // 点击图片左右两侧翻页
         galleryImage.addEventListener('click', (e) => {
             if (!currentProj) return;
@@ -1281,8 +1254,6 @@
         const aibookPlaceholder = document.getElementById('aibook-placeholder');
         const aibookTabs = document.getElementById('aibook-tabs');
         const aibookCounter = document.getElementById('aibook-counter');
-        const aibookPrev = document.getElementById('aibook-prev');
-        const aibookNext = document.getElementById('aibook-next');
         const TOTAL_PAGES = 15;
         let aibookCurrent = 0;
         let aibookImgEl = null;
@@ -1312,22 +1283,12 @@
             aibookImgEl.src = `aibook/page_${pageNum}.png`;
             // Update counter
             aibookCounter.textContent = `${index + 1} / ${TOTAL_PAGES}`;
-            // Update buttons
-            aibookPrev.style.opacity = index === 0 ? '0.2' : '0.7';
-            aibookNext.style.opacity = index === TOTAL_PAGES - 1 ? '0.2' : '0.7';
             // Highlight tab
             const tabs = aibookTabs.querySelectorAll('.aibook-tab');
             tabs.forEach((t, i) => t.classList.toggle('active', i === index));
             // Scroll tab into view
             tabs[index]?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         }
-
-        aibookPrev.addEventListener('click', () => {
-            if (aibookCurrent > 0) showAibookPage(aibookCurrent - 1);
-        });
-        aibookNext.addEventListener('click', () => {
-            if (aibookCurrent < TOTAL_PAGES - 1) showAibookPage(aibookCurrent + 1);
-        });
 
         // Click image to flip
         aibookImage.addEventListener('click', (e) => {
@@ -1361,8 +1322,6 @@
         const graphicPlaceholder = document.getElementById('graphic-placeholder');
         const graphicTabs = document.getElementById('graphic-tabs');
         const graphicCounter = document.getElementById('graphic-counter');
-        const graphicPrev = document.getElementById('graphic-prev');
-        const graphicNext = document.getElementById('graphic-next');
         const graphicDesc = document.getElementById('graphic-desc');
         const TOTAL_GRAPHIC = 32;
         let graphicCurrent = 0;
@@ -1400,8 +1359,6 @@
             }
             graphicImgEl.src = `graphic/page_${pageNum}.png`;
             graphicCounter.textContent = `${index + 1} / ${TOTAL_GRAPHIC}`;
-            graphicPrev.style.opacity = index === 0 ? '0.2' : '0.7';
-            graphicNext.style.opacity = index === TOTAL_GRAPHIC - 1 ? '0.2' : '0.7';
             // Highlight correct tab
             const tabs = graphicTabs.querySelectorAll('.graphic-tab');
             let activeTab = -1;
@@ -1414,13 +1371,6 @@
                 graphicDesc.textContent = activeTab >= 0 ? graphicProjects[activeTab].desc : '';
             }
         }
-
-        graphicPrev.addEventListener('click', () => {
-            if (graphicCurrent > 0) showGraphicPage(graphicCurrent - 1);
-        });
-        graphicNext.addEventListener('click', () => {
-            if (graphicCurrent < TOTAL_GRAPHIC - 1) showGraphicPage(graphicCurrent + 1);
-        });
 
         graphicImage.addEventListener('click', (e) => {
             const rect = graphicImage.getBoundingClientRect();
@@ -1450,8 +1400,6 @@
         const vibeGallery = document.getElementById('vibe-gallery');
         const vibePlaceholder = document.getElementById('vibe-placeholder');
         const vibeCounter = document.getElementById('vibe-counter');
-        const vibePrev = document.getElementById('vibe-prev');
-        const vibeNext = document.getElementById('vibe-next');
         const vibeDots = document.getElementById('vibe-dots');
         const VIBE_TOTAL = 5;
         let vibeCurrent = 0;
@@ -1479,15 +1427,10 @@
             }
             vibeImgEl.src = `vibe/${vibeImages[index]}.png`;
             vibeCounter.textContent = `${vibeImages[index]} (${index + 1} / ${VIBE_TOTAL})`;
-            vibePrev.style.opacity = index === 0 ? '0.2' : '0.7';
-            vibeNext.style.opacity = index === VIBE_TOTAL - 1 ? '0.2' : '0.7';
             // Update dots
             const dots = vibeDots.querySelectorAll('span');
             dots.forEach((d, i) => d.style.background = i === index ? '#6b5a7a' : '#c8c0c0');
         }
-
-        vibePrev.addEventListener('click', () => { if (vibeCurrent > 0) showVibeImage(vibeCurrent - 1); });
-        vibeNext.addEventListener('click', () => { if (vibeCurrent < VIBE_TOTAL - 1) showVibeImage(vibeCurrent + 1); });
 
         vibeGallery.addEventListener('click', (e) => {
             const rect = vibeGallery.getBoundingClientRect();
