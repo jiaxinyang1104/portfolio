@@ -6,6 +6,9 @@
     <title>JiaXin Yang - Portfolio</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preload" as="image" href="interior/page_04.png">
+    <link rel="preload" as="image" href="aibook/page_01.png">
+    <link rel="preload" as="image" href="graphic/page_01.png">
 
     <style>
         /* ================= 基础重置 ================= */
@@ -213,8 +216,19 @@
             height: 50px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             transition: left 0.45s ease, transform 0.45s ease;
+        }
+        .bottom-controls .arrow-btn.prev {
+            position: absolute;
+            left: 0;
+        }
+        .bottom-controls .next-wrap {
+            position: absolute;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         /* ================= 底部社交栏 ================= */
@@ -915,6 +929,9 @@
                             <div style="width:40px; height:40px; background:#fff0f5; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#ffd0e0; border:1px solid #ffe8f0; cursor:pointer;">
                                 <i class="fa-regular fa-heart"></i>
                             </div>
+                            <a href="qrcode.png" target="_blank" title="扫码浏览" style="width:40px; height:40px; background:#fff0f5; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; color:#ffd0e0; border:1px solid #ffe8f0; cursor:pointer; text-decoration:none;">
+                                <i class="fa-solid fa-qrcode"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -991,7 +1008,7 @@
             </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; align-items:center;">
+        <div class="next-wrap" id="next-wrap">
             <button class="arrow-btn next" id="next-btn">⟶</button>
             <span class="nav-hint-text" id="nav-hint-text" style="font-family:'Inter',sans-serif; font-size:10px; color:#b8a8a8; text-align:center; letter-spacing:0.5px; margin-top:2px;">点击到下一个项目</span>
         </div>
@@ -1014,6 +1031,20 @@
         
         let currentIndex = 0;
         const totalSlides = slides.length;
+
+        // ============ 图片预加载 ============
+        function preloadImage(url) {
+            if (!url) return;
+            const img = new Image();
+            img.src = url;
+        }
+        function preloadAdjacent(base, max) {
+            // Preload next 2 and prev 1 images
+            for (let i = 1; i <= 2; i++) {
+                if (base + i <= max) preloadImage(base + i);
+            }
+            if (base > 0) preloadImage(base - 1);
+        }
 
         // ============ 响应式缩放 ============
         const appContainer = document.getElementById('app-container');
@@ -1099,6 +1130,36 @@
             navBtns.forEach(btn => {
                 const target = parseInt(btn.dataset.slide);
                 btn.classList.toggle('active-nav-btn', target === currentIndex);
+            });
+
+            // 预加载当前页面及相邻页面的图片
+            const preloadSlides = [currentIndex];
+            if (currentIndex > 0) preloadSlides.push(currentIndex - 1);
+            if (currentIndex < totalSlides - 1) preloadSlides.push(currentIndex + 1);
+            preloadSlides.forEach(idx => {
+                const s = slides[idx];
+                if (!s) return;
+                const sid = s.id;
+                if (sid === 'slide-4') {
+                    for (let i = 1; i <= 5; i++) {
+                        const p = new Image(); p.src = `aibook/page_${String(i).padStart(2, '0')}.png`;
+                    }
+                } else if (sid === 'slide-7') {
+                    for (let i = 1; i <= 5; i++) {
+                        const p = new Image(); p.src = `graphic/page_${String(i).padStart(2, '0')}.png`;
+                    }
+                } else if (sid === 'slide-8' && typeof vibeImages !== 'undefined') {
+                    vibeImages.forEach(img => {
+                        const p = new Image(); p.src = `vibe/${img}.png`;
+                    });
+                } else if (sid === 'slide-3' && typeof galleryData !== 'undefined') {
+                    for (let pid = 1; pid <= 3; pid++) {
+                        const data = galleryData[pid];
+                        if (data) data.images.forEach(img => {
+                            const p = new Image(); p.src = img;
+                        });
+                    }
+                }
             });
         }
 
@@ -1209,6 +1270,24 @@
                 galleryImage.appendChild(galleryImgEl);
             }
             galleryImgEl.src = data.images[index];
+            // Preload adjacent images in flat list
+            const flatIdx = galleryFlat.findIndex(item => item.projId === projId && item.imageIndex === index);
+            for (let i = 1; i <= 2; i++) {
+                if (flatIdx + i < galleryFlat.length) {
+                    const nxt = galleryFlat[flatIdx + i];
+                    const nxtData = galleryData[nxt.projId];
+                    if (nxtData && nxtData.images[nxt.imageIndex]) {
+                        const pi = new Image(); pi.src = nxtData.images[nxt.imageIndex];
+                    }
+                }
+            }
+            if (flatIdx > 0) {
+                const prv = galleryFlat[flatIdx - 1];
+                const prvData = galleryData[prv.projId];
+                if (prvData && prvData.images[prv.imageIndex]) {
+                    const pi = new Image(); pi.src = prvData.images[prv.imageIndex];
+                }
+            }
             galleryCounter.textContent = `${index + 1} / ${data.images.length}`;
         }
 
@@ -1326,6 +1405,8 @@
                 aibookImage.appendChild(aibookImgEl);
             }
             aibookImgEl.src = `aibook/page_${pageNum}.png`;
+            // Preload adjacent pages
+            preloadAdjacent(index, TOTAL_PAGES - 1);
             // Update counter
             aibookCounter.textContent = `${index + 1} / ${TOTAL_PAGES}`;
             // Highlight tab
@@ -1403,6 +1484,8 @@
                 graphicImage.appendChild(graphicImgEl);
             }
             graphicImgEl.src = `graphic/page_${pageNum}.png`;
+            // Preload adjacent pages
+            preloadAdjacent(index, TOTAL_GRAPHIC - 1);
             graphicCounter.textContent = `${index + 1} / ${TOTAL_GRAPHIC}`;
             // Highlight correct tab
             const tabs = graphicTabs.querySelectorAll('.graphic-tab');
@@ -1471,6 +1554,15 @@
                 vibeGallery.appendChild(vibeImgEl);
             }
             vibeImgEl.src = `vibe/${vibeImages[index]}.png`;
+            // Preload adjacent
+            for (let i = 1; i <= 2; i++) {
+                if (index + i < VIBE_TOTAL) {
+                    const pi = new Image(); pi.src = `vibe/${vibeImages[index + i]}.png`;
+                }
+            }
+            if (index > 0) {
+                const pi = new Image(); pi.src = `vibe/${vibeImages[index - 1]}.png`;
+            }
             vibeCounter.textContent = `${vibeImages[index]} (${index + 1} / ${VIBE_TOTAL})`;
             // Update dots
             const dots = vibeDots.querySelectorAll('span');
