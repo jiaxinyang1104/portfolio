@@ -360,7 +360,7 @@
             white-space: nowrap;
         }
 
-        /* ================= 室内设计书签 ================= */
+        /* ================= 室内设计书签（右侧） ================= */
         .interior-bookmark {
             position: absolute;
             display: flex;
@@ -368,14 +368,15 @@
             gap: 8px;
             cursor: pointer;
             z-index: 10;
-            border-radius: 0 8px 8px 0;
-            transition: left 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+            border-radius: 8px 0 0 8px;
+            transition: right 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
             padding: 0 10px;
             font-family: 'Inter', sans-serif;
             font-weight: 600;
             overflow: hidden;
             white-space: nowrap;
-            box-shadow: 2px 2px 6px rgba(0,0,0,0.06);
+            box-shadow: -2px 2px 6px rgba(0,0,0,0.06);
+            flex-direction: row-reverse;
         }
         .interior-bookmark .bm-num {
             font-size: 18px;
@@ -392,14 +393,14 @@
             opacity: 1;
         }
         /* bm1 浅粉紫 */
-        .interior-bookmark.bm1 { top: 50px; height: 55px; left: -20px; width: 44px; background: #f7e9f4; color: #7a4a6a; }
-        .interior-bookmark.bm1.active { left: -65px; width: 145px; background: #fcf5fa; color: #7a4a6a; box-shadow: 3px 3px 12px rgba(0,0,0,0.1); }
+        .interior-bookmark.bm1 { top: 50px; height: 55px; right: -20px; width: 44px; background: #f7e9f4; color: #7a4a6a; }
+        .interior-bookmark.bm1.active { right: -65px; width: 145px; background: #fcf5fa; color: #7a4a6a; box-shadow: -3px 3px 12px rgba(0,0,0,0.1); }
         /* bm2 玫瑰粉 */
-        .interior-bookmark.bm2 { top: 118px; height: 55px; left: -20px; width: 44px; background: #f7dbeb; color: #8a3a62; }
-        .interior-bookmark.bm2.active { left: -65px; width: 145px; background: #fceef6; color: #8a3a62; box-shadow: 3px 3px 12px rgba(0,0,0,0.1); }
+        .interior-bookmark.bm2 { top: 118px; height: 55px; right: -20px; width: 44px; background: #f7dbeb; color: #8a3a62; }
+        .interior-bookmark.bm2.active { right: -65px; width: 145px; background: #fceef6; color: #8a3a62; box-shadow: -3px 3px 12px rgba(0,0,0,0.1); }
         /* bm3 浅灰 */
-        .interior-bookmark.bm3 { top: 186px; height: 55px; left: -20px; width: 44px; background: #dfdfe2; color: #4a4a52; }
-        .interior-bookmark.bm3.active { left: -65px; width: 145px; background: #eaeaec; color: #4a4a52; box-shadow: 3px 3px 12px rgba(0,0,0,0.1); }
+        .interior-bookmark.bm3 { top: 186px; height: 55px; right: -20px; width: 44px; background: #dfdfe2; color: #4a4a52; }
+        .interior-bookmark.bm3.active { right: -65px; width: 145px; background: #eaeaec; color: #4a4a52; box-shadow: -3px 3px 12px rgba(0,0,0,0.1); }
         .page-indicator {
             position: absolute; bottom: 20px; right: 20px;
             font-family: 'Inter', sans-serif;
@@ -1089,6 +1090,11 @@
             const resumeDownload = document.getElementById('resume-download');
             resumeDownload.style.display = currentIndex === 1 ? 'block' : 'none';
 
+            // 进入室内设计页(3)时默认加载项目1
+            if (currentIndex === 3 && !currentProj) {
+                updateInteriorPage(1);
+            }
+
             // 底部导航按钮高亮
             navBtns.forEach(btn => {
                 const target = parseInt(btn.dataset.slide);
@@ -1236,16 +1242,55 @@
             });
         });
 
-        // 点击图片左右两侧翻页
+        // 点击图片左右两侧翻页（跨项目连续）
+        // 构建扁平化图片索引
+        const galleryFlat = [];
+        for (let pid = 1; pid <= 3; pid++) {
+            const data = galleryData[pid];
+            data.images.forEach((img, idx) => {
+                galleryFlat.push({ projId: pid, imageIndex: idx });
+            });
+        }
+
         galleryImage.addEventListener('click', (e) => {
             if (!currentProj) return;
             const rect = galleryImage.getBoundingClientRect();
             const x = e.clientX - rect.left;
+            // Find current position in flat list
+            const flatIdx = galleryFlat.findIndex(item => item.projId === currentProj && item.imageIndex === currentImageIndex);
             if (x < rect.width * 0.4) {
-                if (currentImageIndex > 0) showGalleryImage(currentProj, currentImageIndex - 1);
+                // Go left: previous image or previous project
+                if (flatIdx > 0) {
+                    const prev = galleryFlat[flatIdx - 1];
+                    if (prev.projId !== currentProj) updateInteriorPage(prev.projId);
+                    showGalleryImage(prev.projId, prev.imageIndex);
+                }
             } else if (x > rect.width * 0.6) {
-                const data = galleryData[currentProj];
-                if (currentImageIndex < data.images.length - 1) showGalleryImage(currentProj, currentImageIndex + 1);
+                // Go right: next image or next project
+                if (flatIdx < galleryFlat.length - 1) {
+                    const next = galleryFlat[flatIdx + 1];
+                    if (next.projId !== currentProj) updateInteriorPage(next.projId);
+                    showGalleryImage(next.projId, next.imageIndex);
+                }
+            }
+        });
+
+        // 键盘翻页（室内设计 - 跨项目连续）
+        document.addEventListener('keydown', (e) => {
+            if (!currentProj) return;
+            const activeSlide = document.querySelector('.slide.active');
+            if (!activeSlide || activeSlide.id !== 'slide-3') return;
+            const flatIdx = galleryFlat.findIndex(item => item.projId === currentProj && item.imageIndex === currentImageIndex);
+            if (e.key === 'ArrowLeft' && flatIdx > 0) {
+                e.preventDefault();
+                const prev = galleryFlat[flatIdx - 1];
+                if (prev.projId !== currentProj) updateInteriorPage(prev.projId);
+                showGalleryImage(prev.projId, prev.imageIndex);
+            } else if (e.key === 'ArrowRight' && flatIdx < galleryFlat.length - 1) {
+                e.preventDefault();
+                const next = galleryFlat[flatIdx + 1];
+                if (next.projId !== currentProj) updateInteriorPage(next.projId);
+                showGalleryImage(next.projId, next.imageIndex);
             }
         });
 
