@@ -59,8 +59,7 @@
             position: relative;
             width: 960px;
             height: 680px;
-            margin-left: 200px;
-            transition: transform 0.45s ease, width 0.45s ease, margin-left 0.45s ease;
+            transition: transform 0.45s ease, margin-left 0.45s ease;
             transform-origin: center center;
         }
         .slides-wrapper.zoom-in {
@@ -208,12 +207,14 @@
         .bottom-controls {
             position: absolute;
             bottom: 15px;
-            left: 200px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 960px;
             height: 50px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            transition: left 0.45s ease, transform 0.45s ease;
         }
 
         /* ================= 底部社交栏 ================= */
@@ -464,38 +465,9 @@
             filter: blur(0);
             cursor: default;
         }
-        /* ================= 响应式适配 ================= */
-        @media (max-width: 1280px) {
-            body {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-            }
-            #app-container {
-                transform-origin: top center;
-            }
-        }
-        @media (max-width: 1000px) {
-            body { padding: 10px; }
-            #app-container {
-                transform: scale(0.75);
-                transform-origin: top center;
-            }
-        }
-        @media (max-width: 768px) {
-            body { padding: 5px; }
-            #app-container {
-                transform: scale(0.55);
-                transform-origin: top center;
-            }
-        }
-        @media (max-width: 480px) {
-            body { padding: 2px; }
-            #app-container {
-                transform: scale(0.38);
-                transform-origin: top center;
-            }
+        /* ================= 响应式：JS 动态缩放 ================= */
+        #app-container {
+            transform-origin: top center;
         }
     </style>
 </head>
@@ -1041,6 +1013,7 @@
         const nextBtn = document.getElementById('next-btn');
         const sidebar = document.getElementById('sidebar');
         const slidesWrapper = document.getElementById('slides-wrapper');
+        const bottomControls = document.getElementById('bottom-controls');
         const bottomNav = document.getElementById('bottom-nav');
         const navBtns = document.querySelectorAll('.nav-btn');
         const projectBtn = document.getElementById('project-btn');
@@ -1048,6 +1021,21 @@
         
         let currentIndex = 0;
         const totalSlides = slides.length;
+
+        // ============ 响应式缩放 ============
+        const appContainer = document.getElementById('app-container');
+        function applyScale() {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const contentW = 1200;  // app-container 固定宽度
+            const contentH = 820;   // 大约总高度（780 + padding + bottom）
+            const scaleW = vw / contentW;
+            const scaleH = vh / contentH;
+            const scale = Math.min(scaleW, scaleH, 1); // 不放大，只缩小
+            appContainer.style.transform = `scale(${scale})`;
+        }
+        applyScale();
+        window.addEventListener('resize', applyScale);
 
         // ============ 跳转到指定 slide ============
         function goToSlide(index) {
@@ -1066,14 +1054,28 @@
                 }
             });
 
-            // 侧边栏：只在 简介(1)、项目目录(2)、联系(8) 显示
+            // 侧边栏：只在 简介(1)、项目目录(2)、联系(9) 显示
             const sidebarPages = [1, 2, 9];
-            if (sidebarPages.includes(currentIndex)) {
+            const sidebarVisible = sidebarPages.includes(currentIndex);
+            if (sidebarVisible) {
                 sidebar.classList.remove('hidden-sidebar');
                 sidebar.classList.add('visible');
             } else {
                 sidebar.classList.remove('visible');
                 sidebar.classList.add('hidden-sidebar');
+            }
+
+            // 书居中：侧边栏可见时偏移 200px，否则居中
+            if (sidebarVisible) {
+                slidesWrapper.style.marginLeft = '200px';
+                slidesWrapper.style.marginRight = '0';
+                bottomControls.style.left = '200px';
+                bottomControls.style.transform = 'none';
+            } else {
+                slidesWrapper.style.marginLeft = '0';
+                slidesWrapper.style.marginRight = '0';
+                bottomControls.style.left = '50%';
+                bottomControls.style.transform = 'translateX(-50%)';
             }
 
             // 书的放大动效：在项目详情页(3-7)时 zoom-in
